@@ -33,7 +33,7 @@ const animalSchema = new mongoose.Schema<Animal>({
 });
 
 animalSchema.statics.findBySpecies = async function (
-  speciesName: string,
+  species_name: string,
 ): Promise<Animal[]> {
   return this.aggregate([
     {
@@ -41,10 +41,30 @@ animalSchema.statics.findBySpecies = async function (
         from: 'species',
         localField: 'species',
         foreignField: '_id',
-        as: 'speciesData',
+        as: 'species',
       },
     },
-    {$match: {'speciesData.species_name': speciesName}},
+    {$unwind: '$species'},
+    {
+      $lookup: {
+        from: 'categories',
+        localField: 'species.category',
+        foreignField: '_id',
+        as: 'species.category',
+      },
+    },
+    {
+      $match: {
+        'species.species_name': species_name,
+      },
+    },
+    {
+      $project: {
+        __v: 0,
+        'species.__v': 0,
+        'species.category.__v': 0,
+      },
+    },
   ]);
 };
 

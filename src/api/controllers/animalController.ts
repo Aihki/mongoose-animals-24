@@ -138,7 +138,7 @@ const getAnimalsByLocation = async (
 };
 
 const getAnimalsBySpecies = async (
-  req: Request<{species_name: string}>,
+  req: Request<{species_name : string}>,
   res: Response<Animal[]>,
   next: NextFunction,
 ) => {
