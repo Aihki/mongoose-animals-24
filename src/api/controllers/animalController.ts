@@ -138,12 +138,12 @@ const getAnimalsByLocation = async (
 };
 
 const getAnimalsBySpecies = async (
-  req: Request<{species_name : string}>,
+  req: Request<{species: string}>,
   res: Response<Animal[]>,
   next: NextFunction,
 ) => {
   try {
-    const animals = await animalModel.findBySpecies(req.params.species_name);
+    const animals = await animalModel.findBySpecies(req.params.species);
     res.json(animals);
   } catch (error) {
     next(new CustomError((error as Error).message, 500));
