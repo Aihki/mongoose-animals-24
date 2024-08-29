@@ -1,5 +1,6 @@
-import  mongoose  from "mongoose";
-import { Animal } from "../../types/Animal";
+import mongoose from 'mongoose';
+import {Animal, AnimalModel} from '../../types/Animal';
+
 
 const animalSchema = new mongoose.Schema<Animal>({
   animal_name: {
@@ -11,16 +12,17 @@ const animalSchema = new mongoose.Schema<Animal>({
   birthdate: {
     type: Date,
     required: true,
+    max: Date.now(),
   },
   species: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Species",
+    ref: 'Species',
     required: true,
   },
   location: {
     type: {
       type: String,
-      enum: ["Point"],
+      enum: ['Point'],
       required: true,
     },
     coordinates: {
@@ -30,6 +32,22 @@ const animalSchema = new mongoose.Schema<Animal>({
   },
 });
 
-animalSchema.index({ location: "2dsphere" });
+animalSchema.statics.findBySpecies = async function (
+  speciesName: string,
+): Promise<Animal[]> {
+  return this.aggregate([
+    {
+      $lookup: {
+        from: 'species',
+        localField: 'species',
+        foreignField: '_id',
+        as: 'speciesData',
+      },
+    },
+    {$match: {'speciesData.species_name': speciesName}},
+  ]);
+};
 
-export default mongoose.model<Animal>("Animal", animalSchema);
+animalSchema.index({location: '2dsphere'});
+
+export default mongoose.model<Animal, AnimalModel>('Animal', animalSchema);

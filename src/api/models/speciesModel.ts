@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import { Species } from "../../types/Species";
+import { Species, SpeciesModel } from "../../types/Species";
+import { Polygon } from "geojson";
 
 const speciesSchema = new mongoose.Schema<Species>({
   species_name: {
@@ -32,4 +33,26 @@ const speciesSchema = new mongoose.Schema<Species>({
 
 speciesSchema.index({ location: "2dsphere" });
 
-export default mongoose.model<Species>("Species", speciesSchema);
+speciesSchema.statics.findByArea = async function (
+  polygon: Polygon,
+): Promise<Species[]> {
+
+  return this.find({
+    location: {
+      $geoWithin: {
+        $geometry: {
+          type: 'Polygon',
+          coordinates: polygon.coordinates,
+        },
+      },
+    },
+  }).exec();
+};
+
+speciesSchema.statics.findByCategory = function (categoryId: mongoose.Types.ObjectId): Promise<Species[]> {
+  return this.find({ category: categoryId }).exec();
+};
+
+export default mongoose.model<Species, SpeciesModel>("Species", speciesSchema);
+
+
