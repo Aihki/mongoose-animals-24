@@ -33,6 +33,7 @@ const getAnimals = async (
   try {
     const animals = await animalModel.find().populate({
       path: 'species',
+      select: '-__v',
       populate: {
         path: 'category',
         select: '-__v'
@@ -54,6 +55,7 @@ const getAnimal = async (
       .findById(req.params.id)
       .populate({
         path: 'species',
+        select: '-__v',
         populate: {
           path: 'category',
           select: '-__v'
@@ -122,6 +124,7 @@ const getAnimalsByLocation = async (
       })
       .populate({
         path: 'species',
+        select: '-__v',
         populate: {
           path: 'category',
           select: '-__v'
